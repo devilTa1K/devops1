@@ -1,0 +1,55 @@
+services:
+  # ─── MongoDB Database ───────────────────────────────
+  mongo:
+    image: mongo:7
+    container_name: cipher-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - cipher-network
+    restart: unless-stopped
+
+  # ─── Express Backend ────────────────────────────────
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: cipher-server
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://mongo:27017/cipher-converter
+      - AES_SECRET_KEY=${AES_SECRET_KEY:-default-secret-key-change-in-production}
+      - CLIENT_URL=http://localhost
+    depends_on:
+      - mongo
+    networks:
+      - cipher-network
+    restart: unless-stopped
+
+  # ─── React Frontend ─────────────────────────────────
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: cipher-client
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    networks:
+      - cipher-network
+    restart: unless-stopped
+
+# ─── Shared Resources ──────────────────────────────────
+volumes:
+  mongo-data:
+    driver: local
+
+networks:
+  cipher-network:
+    driver: bridge
