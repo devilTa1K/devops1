@@ -20,7 +20,7 @@ A production-ready full-stack web application for encrypting and decrypting text
 - **CI/CD Pipeline**: Jenkins declarative pipeline
 - **Responsive Design**: Mobile-first, works on all devices
 
----
+---commit
 
 ## 🏗️ Architecture
 
